@@ -37,6 +37,8 @@ function Paste() {
 };
 
 
+
+
 function PasteNew() {
   var spreadsheet = SpreadsheetApp.getActive();
   spreadsheet.getRange('2:2').activate();
