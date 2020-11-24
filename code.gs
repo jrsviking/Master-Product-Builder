@@ -1,119 +1,166 @@
-function flushNew() {
+//|| Checks for all of the named ranges in a sheet // Figuire out how to make this cycel bother ranges
+//|| grab all of the named ranges:from all of the shee
+
+
+function allMyNamedRanges() {
+
+    var ss=SpreadsheetApp.getActive();
+    var sh=ss.getActiveSheet();
+    var rgA=ss.getNamedRanges();
+    
+   var rangeSheet = ss.setActiveSheet(ss.getSheetByName('Lookup | Mel'),true);
+   var maxRows = rangeSheet.getMaxRows(); 
+   var lastRow = rangeSheet.getLastRow();
+   if (maxRows!=lastRow){
+   rangeSheet.deleteRows(lastRow+1, maxRows-lastRow)
+  }
+    
+    var messageMissingRange = []
+  
+    var names=[]; // Creates the Arra that will hold oall of the named ranges in a sheet
+    rgA.forEach(function(rg,i){names.push(rg.getName());});
+    console.log("Names: ")
+    console.log(names);
+   
+    
+//|| grab the values of 'full range' back: 
+
+ var arrayRangeBuilder = sh.getRange('fullRange').getValues();
+// console.log("array Range: ")
+// console.log(arrayRangeBuilder);
+
+ var arrayChecker = arrayRangeBuilder.map(checkOneRow);
+ 
+     console.log("array chcecker vaulues: ")
+     console.log(arrayChecker);
+
+     function checkOneRow(blendName) {
+     
+     // set a test variable - current row - which pulls text in from the blendname
+     // Cycle through each of the rows in the range builder array and check against them - working. 
+     // look for the row in there to see if it is a match 
+          
+       var testVariable =  blendName[1];
+       
+       console.log("Value of Test variable is below")
+       console.log(testVariable)
+       
+       var nameIndex = names.indexOf(testVariable);
+       console.log("Values of test index")
+       console.log(nameIndex)
+       
+      if (nameIndex==-1){
+      console.log("The following Range is missing: "+testVariable);
+      var messageMissing=testVariable
+      messageMissingRange.push(messageMissing)
+      }else{
+      console.log("The following range was successfully found: "+testVariable)
+      }
+     }  
+     
+   if(messageMissingRange==""){
+  rangeBuilderMap()
+   }else{
+    var outputSheetName = "NewLoad" //holds the name of out the outputSheet to write to
+    var outputSheet = ss.setActiveSheet(ss.getSheetByName(outputSheetName),true)
+    SpreadsheetApp.getUi().alert("These are the missing ranges:"+messageMissingRange);
+   };
+};
+    
+
+
+function flushNew() {  //|| Deletes all of the old rows on the sheet and clears out cell A2 - run to clear out sheet at start
 
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
- 	var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
-   var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true);
+  var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
+  var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true);
   var lr = outputSheet.getLastRow();
- var fr = 3
+  var fr = 3
   var nr = lr-2
-  outputSheet.deleteRows(fr,nr);  
+ 
+   outputSheet.deleteRows(fr,nr);  
+
   var rangeClear = outputSheet.getRange("A2:A2");
   rangeClear.clear();
   
 };
 
 
-
-function PasteNew() {
+function PasteNew() { //|| Pastes down the formulas - to run after ranges have been built
   var spreadsheet = SpreadsheetApp.getActive();
-
-    var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
- 	var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
-   var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true);
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
+  var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
+  var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true); //Grabs new load sehett
+  
+  //Builds an map of the paste region by finding the last column and last row starting at R2:C2 (fr:fc) to last row / last column (lr:Lc) calculates number of rows(nr) (lr-fr) and no of cols (nc) (lc-fc)
   var lc = outputSheet.getLastColumn();
-  console.log("lc="+lc)
   var fc = 2
-   console.log("fc="+fc)
   var nc = lc-fc 
-   console.log("nc="+nc)
+  
   var fr = 2
-  console.log("fr="+fr)
   var lr = outputSheet.getLastRow();
-  console.log("lr="+lr)
   var nr = lr-fr
-  console.log("nr="+nr)
 
- var rangePaste = outputSheet.getRange(3,fc,nr,nc);
+ var rangePaste = outputSheet.getRange(3,fc,nr,nc); //sets range to paste to
 
- outputSheet.getRange(2,fc,1,nc).copyTo(rangePaste);
+ outputSheet.getRange(2,fc,1,nc).copyTo(rangePaste); //sets copy range and pastes in rangePaste
 };
 
-
-function rangeBuilder(){
-  // Get 3D Array [Group],[Range],[Batch]
-  // Set variablees
-  	var fullRange = "fullRange" //grabs the full range pre-filtering
-    //  $$ Enhance by selecting range using get last.  
- 	var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
- 	var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
-  	var arrayRangeBuilder = sheet.getRange(fullRange).getValues();  //Grabs the full range of options
- //creates a new sheet called batchName
-   var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true); //Creates output sheet object to write results to by looking for sheet named 'output'
-   
-	for (var keyGroup in arrayRangeBuilder){
-		    var codeGroup = arrayRangeBuilder[keyGroup][0];
-		    var codeRange = arrayRangeBuilder[keyGroup][1];
-		    var arrayRange = sheet.getRange(codeRange).getValues(); 
-		    for (var keyRange in arrayRange){
-		    var codeProduct = codeGroup+"-"+arrayRange[keyRange]
-		    outputSheet.appendRow([codeProduct]); 
-		}
-	} 
-}
 
 
 function rangeBuilderMap(){
 
-    flushNew()
+    flushNew() //clears out old cells
 
-  // Get 3D Array [Group],[Range],[Batch]
-  // Set variablees
-  	var fullRange = "fullRange" //grabs the full range pre-filtering
-    //  $$ Enhance by selecting range using get last.  
+  // Get Array [Group],[Range]
+
+  	var fullRange = "fullRange" //sets the name of the Named Range in the sheet we are going to grab $$ Enhance by selecting range using get last so it doesn't select empty rows
  	var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
  	var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
-  	var arrayRangeBuilder = sheet.getRange(fullRange).getValues();  //Grabs the full range of options
-    console.log(arrayRangeBuilder)
- //creates a new sheet called batchName
-   var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true); //Creates output sheet object to write results to by looking for sheet named 'output'
-// ok to split this out Map calls a function.  
+  	var arrayRangeBuilder = sheet.getRange(fullRange).getValues();  //Grabs the full range of values here into  arrayRangeBuilder[]
+    var outputSheetName = "NewLoad" //holds the name of out the outputSheet to write to
+    var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName(outputSheetName),true); //Creates output sheet object to write results to by looking for sheet in the outputSheetName
 
 
-    var arrayTempDemo = arrayRangeBuilder.map(testFunction) 
-    console.log(arrayTempDemo);
+    var arrayTempDemo = arrayRangeBuilder.map(testFunction);  //Uses map array funciton on the full array function 
+
     
-    function testFunction(row){
+    function testFunction(row){ //|| initalises output sheet & then goes and grabs a row, pulls back the blend array for that row then iterates through it building up all the SKU codes for that group then pastes them into the sheet.
   
       var  spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
-      var  sheet = spreadsheet.getSheets()[0];
-      var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true);
+      var  sheet = spreadsheet.getSheets()[0]; // Creates a sheet object
+      var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true); // Set output sheet
       
-        var  codeGroup = row[0];
-        var  codeRange = row[1];
-        var  arrayRange = sheet.getRange(codeRange).getValues(); 
-      
-      
-     var arraySku = arrayRange.map(buildSku);
-      
-     function buildSku(blend){
-     
-     var sku  = codeGroup+"-"+blend;
-      //outputSheet.appendRow([sku]); 
-     var skuArray = [];
-     skuArray.push(sku)
-     return skuArray;
+        var  codeGroup = row[0];  // sets codeGroup (e.g. MA229) as a variable from the first col in the array
+        var  codeRange = row[1];  // Stes codeRange (e.e. ToughPoshAllSizes) as a var from the second col of the array
     
-     }
+      
+      var  arrayRange = sheet.getRange(codeRange).getValues(); //Looks for the named range in the sheet that matches codeRange (e.g. ToughPoshAllSizes) and puts it into a new array called arrayRange
+    
+    //$$ add something here to check to see if a range exists and if not flag that it is missing. 
+    
+             console.log("Array Range: "+arrayRange)
      
+           var arraySku = arrayRange.map(buildSku);
+            
+           function buildSku(blend){
+           console.log('Array Range:'+codeRange);
+           var sku  = codeGroup+"-"+blend;
+            //outputSheet.appendRow([sku]); 
+           var skuArray = [];
+           skuArray.push(sku)
+           return skuArray;
+           }
+ 
      
+    
      
      var output = [codeGroup,arrayRange];
      
-     console.log (arraySku);
+
      
      var arraySkuLength = arraySku.length;
-     console.log(arraySkuLength);
-    
+ 
      
      
      //OK hsut going through and figuring out how to append into a selected range. 
@@ -132,29 +179,17 @@ function rangeBuilderMap(){
        
        };
      
- 
-  
-
-  
-   /*
-
-	for (var keyGroup in arrayRangeBuilder){
-		    var codeGroup = arrayRangeBuilder[keyGroup][0];
-		    var codeRange = arrayRangeBuilder[keyGroup][1];
-		    var arrayRange = sheet.getRange(codeRange).getValues(); 
-		    for (var keyRange in arrayRange){
-		    var codeProduct = codeGroup+"-"+arrayRange[keyRange]
-		    outputSheet.appendRow([codeProduct]); 
-		}
-	} */
 }
-
-
 
 
 /*
 || Next steps
-1) Update this to use Map function
-2) Update this to use find last when selecting range
+
+1) double check that it is really building tne ranges properly right down to the end 
+2) Create a copy of the code and allow the output & range sheets to be pulled from a variable passed into the funcftion so that we can all have our own load / batch sheets - will work much better. 
+3) Start rationalising the code abit so it is all broken out into seperate functios properly. 
+// Things learnt - log arrays on a secondary line so that it shows the full structure of the array, if you do it with a text value it strips the brackets.
+ Make sure you are adding unecessary structure to an array 
+
 */
 
