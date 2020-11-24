@@ -1,6 +1,11 @@
 //|| Checks for all of the named ranges in a sheet // Figuire out how to make this cycel bother ranges
 //|| grab all of the named ranges:from all of the shee
 
+function clv(varValue,varName){ //Console Log Variable name - prints the name and the value of a variable to console
+console.log("The value of --" + varName + "-- is:")
+console.log(varValue);
+
+};
 
 function allMyNamedRanges() {
 
@@ -19,20 +24,16 @@ function allMyNamedRanges() {
   
     var names=[]; // Creates the Arra that will hold oall of the named ranges in a sheet
     rgA.forEach(function(rg,i){names.push(rg.getName());});
-    console.log("Names: ")
-    console.log(names);
+
    
-    
 //|| grab the values of 'full range' back: 
 
  var arrayRangeBuilder = sh.getRange('fullRange').getValues();
-// console.log("array Range: ")
-// console.log(arrayRangeBuilder);
+
+
 
  var arrayChecker = arrayRangeBuilder.map(checkOneRow);
- 
-     console.log("array chcecker vaulues: ")
-     console.log(arrayChecker);
+
 
      function checkOneRow(blendName) {
      
@@ -42,19 +43,13 @@ function allMyNamedRanges() {
           
        var testVariable =  blendName[1];
        
-       console.log("Value of Test variable is below")
-       console.log(testVariable)
+    
        
        var nameIndex = names.indexOf(testVariable);
-       console.log("Values of test index")
-       console.log(nameIndex)
-       
+ 
       if (nameIndex==-1){
-      console.log("The following Range is missing: "+testVariable);
       var messageMissing=testVariable
       messageMissingRange.push(messageMissing)
-      }else{
-      console.log("The following range was successfully found: "+testVariable)
       }
      }  
      
@@ -74,12 +69,13 @@ function flushNew() {  //|| Deletes all of the old rows on the sheet and clears 
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
   var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
   var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true);
-  var lr = outputSheet.getLastRow();
+  var lr = outputSheet.getMaxRows();
   var fr = 3
   var nr = lr-2
- 
-   outputSheet.deleteRows(fr,nr);  
 
+if(nr>0){
+outputSheet.deleteRows(fr,nr);  
+}
   var rangeClear = outputSheet.getRange("A2:A2");
   rangeClear.clear();
   
@@ -138,13 +134,11 @@ function rangeBuilderMap(){
       var  arrayRange = sheet.getRange(codeRange).getValues(); //Looks for the named range in the sheet that matches codeRange (e.g. ToughPoshAllSizes) and puts it into a new array called arrayRange
     
     //$$ add something here to check to see if a range exists and if not flag that it is missing. 
-    
-             console.log("Array Range: "+arrayRange)
+
      
            var arraySku = arrayRange.map(buildSku);
             
            function buildSku(blend){
-           console.log('Array Range:'+codeRange);
            var sku  = codeGroup+"-"+blend;
             //outputSheet.appendRow([sku]); 
            var skuArray = [];
@@ -157,19 +151,11 @@ function rangeBuilderMap(){
      
      var output = [codeGroup,arrayRange];
      
-
-     
      var arraySkuLength = arraySku.length;
- 
-     
-     
-     //OK hsut going through and figuring out how to append into a selected range. 
-     // Then going to add in the ability to do that with longer ranges and append a longer list to the range. 
      
      var lr = outputSheet.getLastRow();
-     console.log("last Row:"+lr);
-     
-     
+    
+    
      var outputRange = outputSheet.getRange(lr,1,arraySkuLength,1);
      outputRange.setValues(arraySku);
      return output;
