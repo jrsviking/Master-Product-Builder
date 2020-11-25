@@ -7,23 +7,39 @@ console.log(varValue);
 
 };
 
+// !!$$ Next stage  -  fund a way to pass JRS in to restest. batchIDParam
+
 //function onOpen(){
   
-function createBatchID(){  
-  var setBatch="Mel"
+function createBatchID(paramBatch){  
+  var setBatch=paramBatch
   var userProperties = PropertiesService.getScriptProperties();
   userProperties.setProperties({
     'batchLookup': 'Lookup | '+setBatch,
     'batchRange': 'Range'+setBatch,
     'batchOutput': 'Output | '+setBatch
-   
+  
   });
   
 };
 
-function allMyNamedRanges() {
 
-    createBatchID()
+function loadMel(){
+allMyNamedRanges("Mel")
+};
+
+function loadJRS(){
+  allMyNamedRanges("JRS")
+};
+
+function loadHH(){
+  allMyNamedRanges("HH")
+};
+
+
+function allMyNamedRanges(batchParam) {
+
+    createBatchID(batchParam)
     
     clv("batchRange 2",PropertiesService.getScriptProperties().getProperty('batchRange'));
     clv("batchOutput 2",PropertiesService.getScriptProperties().getProperty('batchOutput'));
@@ -141,7 +157,7 @@ function rangeBuilderMap(){
   	var fullRange = "fullRange" //sets the name of the Named Range in the sheet we are going to grab $$ Enhance by selecting range using get last so it doesn't select empty rows
  	var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
  	var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
-  	var arrayRangeBuilder = sheet.getRange((PropertiesService.getScriptProperties().getProperty('batchRange'))).getValues();  //Grabs the full range of values here into  arrayRangeBuilder[]
+  	var arrayRangeBuilder = sheet.getRange(fullRange).getValues();  //Grabs the full range of values here into  arrayRangeBuilder[]
   //  var outputSheetName = "NewLoad" //holds the name of out the outputSheet to write to
     var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true); //Creates output sheet object to write results to by looking for sheet in the outputSheetName
 
