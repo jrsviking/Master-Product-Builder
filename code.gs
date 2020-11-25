@@ -1,10 +1,28 @@
 //|| Checks for all of the named ranges in a sheet // Figuire out how to make this cycel bother ranges
 //|| grab all of the named ranges:from all of the shee
 
-function clv(varValue,varName){ //Console Log Variable name - prints the name and the value of a variable to console
+function clv(varName,varValue){ //Console Log Variable name - prints the name and the value of a variable to console
 console.log("The value of --" + varName + "-- is:")
 console.log(varValue);
 
+};
+
+//function onOpen(){
+  
+function testRun(){  
+  var setBatch="Mel"
+  var userProperties = PropertiesService.getScriptProperties();
+  userProperties.setProperties({
+    'batchLookup': 'Lookup | '+setBatch,
+    'batchRange': 'Range'+setBatch,
+    'batchOutput': 'Output | '+setBatch
+   
+  });
+  
+
+  clv("batchRange",userProperties.getProperty('batchRange'));
+  clv("batchOutput",userProperties.getProperty('batchOutput'));
+  clv("batchLookup",userProperties.getProperty('batchLookup'));
 };
 
 function allMyNamedRanges() {
@@ -103,7 +121,6 @@ function PasteNew() { //|| Pastes down the formulas - to run after ranges have b
 };
 
 
-
 function rangeBuilderMap(){
 
     flushNew() //clears out old cells
@@ -127,44 +144,32 @@ function rangeBuilderMap(){
       var  sheet = spreadsheet.getSheets()[0]; // Creates a sheet object
       var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true); // Set output sheet
       
-        var  codeGroup = row[0];  // sets codeGroup (e.g. MA229) as a variable from the first col in the array
-        var  codeRange = row[1];  // Stes codeRange (e.e. ToughPoshAllSizes) as a var from the second col of the array
+      var  codeGroup = row[0];  // sets codeGroup (e.g. MA229) as a variable from the first col in the array
+      var  codeRange = row[1];  // Stes codeRange (e.e. ToughPoshAllSizes) as a var from the second col of the array
     
       
       var  arrayRange = sheet.getRange(codeRange).getValues(); //Looks for the named range in the sheet that matches codeRange (e.g. ToughPoshAllSizes) and puts it into a new array called arrayRange
-    
-    //$$ add something here to check to see if a range exists and if not flag that it is missing. 
-
-     
+  
+ 
            var arraySku = arrayRange.map(buildSku);
             
            function buildSku(blend){
-           var sku  = codeGroup+"-"+blend;
-            //outputSheet.appendRow([sku]); 
-           var skuArray = [];
-           skuArray.push(sku)
-           return skuArray;
+             var sku  = codeGroup+"-"+blend;
+             //outputSheet.appendRow([sku]); 
+             var skuArray = [];
+             skuArray.push(sku)
+             return skuArray;
            }
- 
-     
-    
-     
+  
      var output = [codeGroup,arrayRange];
-     
      var arraySkuLength = arraySku.length;
-     
-     var lr = outputSheet.getLastRow();
-    
+     var lr = outputSheet.getLastRow(); 
     
      var outputRange = outputSheet.getRange(lr,1,arraySkuLength,1);
      outputRange.setValues(arraySku);
      return output;
-  
-     
- 
        
-       };
-     
+       };  
 }
 
 
