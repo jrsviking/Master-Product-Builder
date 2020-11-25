@@ -9,7 +9,7 @@ console.log(varValue);
 
 //function onOpen(){
   
-function testRun(){  
+function createBatchID(){  
   var setBatch="Mel"
   var userProperties = PropertiesService.getScriptProperties();
   userProperties.setProperties({
@@ -19,14 +19,16 @@ function testRun(){
    
   });
   
-
-  clv("batchRange",userProperties.getProperty('batchRange'));
-  clv("batchOutput",userProperties.getProperty('batchOutput'));
-  clv("batchLookup",userProperties.getProperty('batchLookup'));
 };
 
 function allMyNamedRanges() {
 
+    createBatchID()
+    
+    clv("batchRange 2",PropertiesService.getScriptProperties().getProperty('batchRange'));
+    clv("batchOutput 2",PropertiesService.getScriptProperties().getProperty('batchOutput'));
+    clv("batchLookup 2",PropertiesService.getScriptProperties().getProperty('batchLookup'));
+    
     var ss=SpreadsheetApp.getActive();
     var sh=ss.getActiveSheet();
     var rgA=ss.getNamedRanges();
