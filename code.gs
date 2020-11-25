@@ -28,12 +28,18 @@ function allMyNamedRanges() {
     clv("batchRange 2",PropertiesService.getScriptProperties().getProperty('batchRange'));
     clv("batchOutput 2",PropertiesService.getScriptProperties().getProperty('batchOutput'));
     clv("batchLookup 2",PropertiesService.getScriptProperties().getProperty('batchLookup'));
+  
+  
+ //   Range          || (PropertiesService.getScriptProperties().getProperty('batchRange'))
+ //    OUtput Sheeet || (PropertiesService.getScriptProperties().getProperty('batchOutput'))
+  //   LookupSheet   || (PropertiesService.getScriptProperties().getProperty('batchLookup'))
+  
     
     var ss=SpreadsheetApp.getActive();
     var sh=ss.getActiveSheet();
     var rgA=ss.getNamedRanges();
     
-   var rangeSheet = ss.setActiveSheet(ss.getSheetByName('Lookup | Mel'),true);
+   var rangeSheet = ss.setActiveSheet(ss.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchLookup'))),true);
    var maxRows = rangeSheet.getMaxRows(); 
    var lastRow = rangeSheet.getLastRow();
    if (maxRows!=lastRow){
@@ -47,8 +53,11 @@ function allMyNamedRanges() {
 
    
 //|| grab the values of 'full range' back: 
+  
+ //(PropertiesService.getScriptProperties().getProperty('batchRange'))
+  //@@ this call now pulls the batch range from out of the user properties repeat this and add into all places the sheet ie being pulled from. 
 
- var arrayRangeBuilder = sh.getRange('fullRange').getValues();
+ var arrayRangeBuilder = sh.getRange((PropertiesService.getScriptProperties().getProperty('batchRange'))).getValues();
 
 
 
@@ -76,8 +85,8 @@ function allMyNamedRanges() {
    if(messageMissingRange==""){
   rangeBuilderMap()
    }else{
-    var outputSheetName = "NewLoad" //holds the name of out the outputSheet to write to
-    var outputSheet = ss.setActiveSheet(ss.getSheetByName(outputSheetName),true)
+   // var outputSheetName = "NewLoad" //holds the name of out the outputSheet to write to
+    var outputSheet = ss.setActiveSheet(ss.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true)
     SpreadsheetApp.getUi().alert("These are the missing ranges:"+messageMissingRange);
    };
 };
@@ -88,7 +97,7 @@ function flushNew() {  //|| Deletes all of the old rows on the sheet and clears 
 
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
   var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
-  var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true);
+  var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true);
   var lr = outputSheet.getMaxRows();
   var fr = 3
   var nr = lr-2
@@ -106,7 +115,7 @@ function PasteNew() { //|| Pastes down the formulas - to run after ranges have b
   var spreadsheet = SpreadsheetApp.getActive();
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
   var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
-  var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true); //Grabs new load sehett
+  var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true); //Grabs new load sehett
   
   //Builds an map of the paste region by finding the last column and last row starting at R2:C2 (fr:fc) to last row / last column (lr:Lc) calculates number of rows(nr) (lr-fr) and no of cols (nc) (lc-fc)
   var lc = outputSheet.getLastColumn();
@@ -132,9 +141,9 @@ function rangeBuilderMap(){
   	var fullRange = "fullRange" //sets the name of the Named Range in the sheet we are going to grab $$ Enhance by selecting range using get last so it doesn't select empty rows
  	var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
  	var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
-  	var arrayRangeBuilder = sheet.getRange(fullRange).getValues();  //Grabs the full range of values here into  arrayRangeBuilder[]
-    var outputSheetName = "NewLoad" //holds the name of out the outputSheet to write to
-    var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName(outputSheetName),true); //Creates output sheet object to write results to by looking for sheet in the outputSheetName
+  	var arrayRangeBuilder = sheet.getRange((PropertiesService.getScriptProperties().getProperty('batchRange'))).getValues();  //Grabs the full range of values here into  arrayRangeBuilder[]
+  //  var outputSheetName = "NewLoad" //holds the name of out the outputSheet to write to
+    var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true); //Creates output sheet object to write results to by looking for sheet in the outputSheetName
 
 
     var arrayTempDemo = arrayRangeBuilder.map(testFunction);  //Uses map array funciton on the full array function 
@@ -144,7 +153,7 @@ function rangeBuilderMap(){
   
       var  spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
       var  sheet = spreadsheet.getSheets()[0]; // Creates a sheet object
-      var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('NewLoad'),true); // Set output sheet
+      var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true); // Set output sheet
       
       var  codeGroup = row[0];  // sets codeGroup (e.g. MA229) as a variable from the first col in the array
       var  codeRange = row[1];  // Stes codeRange (e.e. ToughPoshAllSizes) as a var from the second col of the array
