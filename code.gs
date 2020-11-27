@@ -16,13 +16,19 @@ function createBatchID(paramBatch){
   var userProperties = PropertiesService.getScriptProperties();
   userProperties.setProperties({
     'batchLookup': 'Lookup | '+setBatch,
-    'batchRange': 'Range'+setBatch,
-    'batchOutput': 'Output | '+setBatch
-  
+    'batchRange': 'Range_'+setBatch,
+    'batchOutput': 'Output | '+setBatch,
+    'batchSC': 'scOutput | '+setBatch
   });
   
 };
 
+function pasteSCJRS(){
+ pasteSC("JRS");
+}
+function pasteSCMel(){
+ pasteSC("Mel");
+}
 
 function loadMel(){
 allMyNamedRanges("Mel")
@@ -34,6 +40,11 @@ function loadJRS(){
 
 function loadHH(){
   allMyNamedRanges("HH")
+};
+
+
+function loadMJ(){
+  allMyNamedRanges("MJ")
 };
 
 
@@ -68,13 +79,12 @@ function allMyNamedRanges(batchParam) {
     rgA.forEach(function(rg,i){names.push(rg.getName());});
 
    
-//|| grab the values of 'full range' back: 
+  //|| grab the values of 'full range' back: 
   
  //(PropertiesService.getScriptProperties().getProperty('batchRange'))
   //@@ this call now pulls the batch range from out of the user properties repeat this and add into all places the sheet ie being pulled from. 
 
  var arrayRangeBuilder = sh.getRange((PropertiesService.getScriptProperties().getProperty('batchRange'))).getValues();
-
 
 
  var arrayChecker = arrayRangeBuilder.map(checkOneRow);
@@ -110,14 +120,12 @@ function allMyNamedRanges(batchParam) {
 
 
 function flushNew() {  //|| Deletes all of the old rows on the sheet and clears out cell A2 - run to clear out sheet at start
-
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
   var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
   var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true);
   var lr = outputSheet.getMaxRows();
   var fr = 3
   var nr = lr-2
-
 if(nr>0){
 outputSheet.deleteRows(fr,nr);  
 }
@@ -125,6 +133,42 @@ outputSheet.deleteRows(fr,nr);
   rangeClear.clear();
   
 };
+
+
+function pasteSC(Batch) { //|| Pastes down the formulas - to run after ranges have been built
+  var spreadsheet = SpreadsheetApp.getActive();
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
+  var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
+  var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName('scOutput | '+Batch),true); //Grabs new load sehett
+  
+  //Builds an map of the paste region by finding the last column and last row starting at R2:C2 (fr:fc) to last row / last column (lr:Lc) calculates number of rows(nr) (lr-fr) and no of cols (nc) (lc-fc)
+  var lc = outputSheet.getLastColumn();
+   clv("paste lc",lc)
+  var fc = 2
+  var nc = lc-fc 
+   clv("paste nc",nc)
+  var fr = 2
+    clv("paste fr",fr)
+  var lr = outputSheet.getLastRow();
+  
+    clv("paste lr",lr)
+  var nr = lr-fr
+    clv("paste nr",nr)
+
+  var rangePaste = outputSheet.getRange(3,fc,nr,nc); //sets range to paste to
+  outputSheet.getRange(2,fc,1,nc).copyTo(rangePaste); //sets copy range and pastes in rangePaste
+  
+  var mr = outputSheet.getMaxRows();
+   clv("Del mr",mr)
+  var lr = outputSheet.getLastRow();
+   clv("Del lr",lr)
+  var nr = mr-(lr)
+   clv("Del nr",nr)
+  if(nr>0){
+    outputSheet.deleteRows(lr+1,nr); 
+  };
+};
+  
 
 
 function PasteNew() { //|| Pastes down the formulas - to run after ranges have been built
@@ -143,30 +187,31 @@ function PasteNew() { //|| Pastes down the formulas - to run after ranges have b
   var nr = lr-fr
 
  var rangePaste = outputSheet.getRange(3,fc,nr,nc); //sets range to paste to
-
  outputSheet.getRange(2,fc,1,nc).copyTo(rangePaste); //sets copy range and pastes in rangePaste
 };
 
 
 function rangeBuilderMap(){
 
-    flushNew() //clears out old cells
+  flushNew() //clears out old cells
 
   // Get Array [Group],[Range]
 
-  	var fullRange = "fullRange" //sets the name of the Named Range in the sheet we are going to grab $$ Enhance by selecting range using get last so it doesn't select empty rows
- 	var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
- 	var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
-  	var arrayRangeBuilder = sheet.getRange(fullRange).getValues();  //Grabs the full range of values here into  arrayRangeBuilder[]
+  var fullRange = (PropertiesService.getScriptProperties().getProperty('batchRange')) //sets the name of the Named Range in the sheet we are going to grab $$ Enhance by selecting range using get last so it doesn't select empty rows
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
+  var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
+  var arrayRangeBuilder = sheet.getRange(fullRange).getValues();  //Grabs the full range of values here into  arrayRangeBuilder[]
   //  var outputSheetName = "NewLoad" //holds the name of out the outputSheet to write to
-    var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true); //Creates output sheet object to write results to by looking for sheet in the outputSheetName
-
-
-    var arrayTempDemo = arrayRangeBuilder.map(testFunction);  //Uses map array funciton on the full array function 
-
     
-    function testFunction(row){ //|| initalises output sheet & then goes and grabs a row, pulls back the blend array for that row then iterates through it building up all the SKU codes for that group then pastes them into the sheet.
-  
+    clv("arrayRangeBuilder",arrayRangeBuilder);
+
+  var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true); //Creates output sheet object to write results to by looking for sheet in the outputSheetName
+  var arrayTempDemo = arrayRangeBuilder.map(testFunction);  //Uses map array funciton on the full array function 
+
+    clv("arrayTempDemo",arrayTempDemo);
+    
+  function testFunction(row){ //|| initalises output sheet & then goes and grabs a row, pulls back the blend array for that row then iterates through it building up all the SKU codes for that group then pastes them into the sheet.
+      clv("row",row);
       var  spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
       var  sheet = spreadsheet.getSheets()[0]; // Creates a sheet object
       var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true); // Set output sheet
@@ -195,8 +240,11 @@ function rangeBuilderMap(){
      var outputRange = outputSheet.getRange(lr,1,arraySkuLength,1);
      outputRange.setValues(arraySku);
      return output;
-       
+     
+     
        };  
+  PasteNew();
+  console.log("PasteNew should have run")
 }
 
 
