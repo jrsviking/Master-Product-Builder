@@ -143,27 +143,21 @@ function pasteSC(Batch) { //|| Pastes down the formulas - to run after ranges ha
   
   //Builds an map of the paste region by finding the last column and last row starting at R2:C2 (fr:fc) to last row / last column (lr:Lc) calculates number of rows(nr) (lr-fr) and no of cols (nc) (lc-fc)
   var lc = outputSheet.getLastColumn();
-   clv("paste lc",lc)
+ 
   var fc = 2
   var nc = lc-fc 
-   clv("paste nc",nc)
   var fr = 2
-    clv("paste fr",fr)
   var lr = outputSheet.getLastRow();
-  
-    clv("paste lr",lr)
+
   var nr = lr-fr
-    clv("paste nr",nr)
 
   var rangePaste = outputSheet.getRange(3,fc,nr,nc); //sets range to paste to
   outputSheet.getRange(2,fc,1,nc).copyTo(rangePaste); //sets copy range and pastes in rangePaste
-  
+ 
   var mr = outputSheet.getMaxRows();
-   clv("Del mr",mr)
   var lr = outputSheet.getLastRow();
-   clv("Del lr",lr)
   var nr = mr-(lr)
-   clv("Del nr",nr)
+
   if(nr>0){
     outputSheet.deleteRows(lr+1,nr); 
   };
@@ -226,7 +220,7 @@ function rangeBuilderMap(){
            var arraySku = arrayRange.map(buildSku);
             
            function buildSku(blend){
-             var sku  = codeGroup+"-"+blend;
+             var sku  = codeGroup+blend;
              //outputSheet.appendRow([sku]); 
              var skuArray = [];
              skuArray.push(sku)
