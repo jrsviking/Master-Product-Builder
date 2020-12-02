@@ -4,7 +4,6 @@
 function clv(varName,varValue){ //Console Log Variable name - prints the name and the value of a variable to console
 console.log("The value of --" + varName + "-- is:")
 console.log(varValue);
-
 };
 
 // !!$$ Next stage  -  fund a way to pass JRS in to restest. batchIDParam
@@ -36,6 +35,11 @@ allMyNamedRanges("Mel")
 
 function loadJRS(){
   allMyNamedRanges("JRS")
+};
+
+
+function loadJRSSpecial(){
+  allMyNamedRangesSpeical("JRS")
 };
 
 function loadHH(){
@@ -200,11 +204,11 @@ function rangeBuilderMap(){
     clv("arrayRangeBuilder",arrayRangeBuilder);
 
   var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true); //Creates output sheet object to write results to by looking for sheet in the outputSheetName
-  var arrayTempDemo = arrayRangeBuilder.map(testFunction);  //Uses map array funciton on the full array function 
+  var arrayTempDemo = arrayRangeBuilder.map(buildArray);  //Uses map array funciton on the full array function 
 
     clv("arrayTempDemo",arrayTempDemo);
     
-  function testFunction(row){ //|| initalises output sheet & then goes and grabs a row, pulls back the blend array for that row then iterates through it building up all the SKU codes for that group then pastes them into the sheet.
+  function buildArray(row){ //|| initalises output sheet & then goes and grabs a row, pulls back the blend array for that row then iterates through it building up all the SKU codes for that group then pastes them into the sheet.
       clv("row",row);
       var  spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
       var  sheet = spreadsheet.getSheets()[0]; // Creates a sheet object
@@ -212,7 +216,9 @@ function rangeBuilderMap(){
       
       var  codeGroup = row[0];  // sets codeGroup (e.g. MA229) as a variable from the first col in the array
       var  codeRange = row[1];  // Stes codeRange (e.e. ToughPoshAllSizes) as a var from the second col of the array
+     
     
+    //  var  specialrange = row[3]
       
       var  arrayRange = sheet.getRange(codeRange).getValues(); //Looks for the named range in the sheet that matches codeRange (e.g. ToughPoshAllSizes) and puts it into a new array called arrayRange
   
@@ -240,6 +246,80 @@ function rangeBuilderMap(){
   PasteNew();
   console.log("PasteNew should have run")
 }
+
+/////////////////
+
+
+
+
+
+
+function rangeBuilderMapSpecial(){
+
+  flushNew() //clears out old cells
+
+  // Get Array [Group],[Range]
+
+  var fullRange = (PropertiesService.getScriptProperties().getProperty('batchRange')) //sets the name of the Named Range in the sheet we are going to grab $$ Enhance by selecting range using get last so it doesn't select empty rows
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
+  var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
+  var arrayRangeBuilder = sheet.getRange(fullRange).getValues();  //Grabs the full range of values here into  arrayRangeBuilder[]
+  //  var outputSheetName = "NewLoad" //holds the name of out the outputSheet to write to
+    
+    clv("arrayRangeBuilder",arrayRangeBuilder);
+
+  var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true); //Creates output sheet object to write results to by looking for sheet in the outputSheetName
+  var arrayTempDemo = arrayRangeBuilder.map(testFunction);  //Uses map array funciton on the full array function 
+
+    clv("arrayTempDemo",arrayTempDemo);
+    
+  function testFunction(row){ //|| initalises output sheet & then goes and grabs a row, pulls back the blend array for that row then iterates through it building up all the SKU codes for that group then pastes them into the sheet.
+      clv("row",row);
+      var  spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
+      var  sheet = spreadsheet.getSheets()[0]; // Creates a sheet object
+      var  outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true); // Set output sheet
+
+      var  codeGroup = row[0];  // sets codeGroup (e.g. MA229) as a variable from the first col in the array
+      var  codeRange = row[1];  // Sets codeRange (e.e. ToughPoshAllSizes) as a var from the second col of the array
+      var  specialRange = row[3]
+      
+     
+      if (specialRange==""){
+        console.log("special Range was blank")
+      }
+    else {
+        clv("SpecialRange had values:",specialRange)
+      
+    }
+      clv("specialRange",specialRange);
+      
+      var  arrayRange = sheet.getRange(codeRange).getValues(); //Looks for the named range in the sheet that matches codeRange (e.g. ToughPoshAllSizes) and puts it into a new array called arrayRange
+  
+ 
+           var arraySku = arrayRange.map(buildSku);
+            
+           function buildSku(blend){
+             var sku  = codeGroup+blend;
+             //outputSheet.appendRow([sku]); 
+             var skuArray = [];
+             skuArray.push(sku)
+             return skuArray;
+           }
+  
+     var output = [codeGroup,arrayRange];
+     var arraySkuLength = arraySku.length;
+     var lr = outputSheet.getLastRow(); 
+    
+     var outputRange = outputSheet.getRange(lr,1,arraySkuLength,1);
+     outputRange.setValues(arraySku);
+     return output;
+     
+     
+       };  
+  PasteNew();
+  console.log("PasteNew should have run")
+};
+
 
 
 /*
