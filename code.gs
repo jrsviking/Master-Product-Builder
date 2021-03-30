@@ -54,7 +54,6 @@ function allMyNamedRanges(batchParam) {
  //   Range          || (PropertiesService.getScriptProperties().getProperty('batchRange'))
  //    OUtput Sheeet || (PropertiesService.getScriptProperties().getProperty('batchOutput'))
   //   LookupSheet   || (PropertiesService.getScriptProperties().getProperty('batchLookup'))
-  
     
    var ss=SpreadsheetApp.getActive();
    var sh=ss.getActiveSheet();
@@ -105,8 +104,6 @@ function allMyNamedRanges(batchParam) {
    };
 };
 
-
-
 function flushNew() {  //|| Deletes all of the old rows on the sheet and clears out cell A2 - run to clear out sheet at start
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
   var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
@@ -121,7 +118,6 @@ outputSheet.deleteRows(fr,nr);
   rangeClear.clear();
   
 };
-
 
 function pasteSC(Batch) { //|| Pastes down the formulas - to run after ranges have been built
   var spreadsheet = SpreadsheetApp.getActive();
@@ -150,8 +146,6 @@ function pasteSC(Batch) { //|| Pastes down the formulas - to run after ranges ha
     outputSheet.deleteRows(lr+1,nr); 
   };
 };
-  
-
 
 function PasteNew() { //|| Pastes down the formulas - to run after ranges have been built
   var spreadsheet = SpreadsheetApp.getActive();
@@ -172,7 +166,6 @@ function PasteNew() { //|| Pastes down the formulas - to run after ranges have b
  outputSheet.getRange(2,fc,1,nc).copyTo(rangePaste); //sets copy range and pastes in rangePaste
 };
 
-
 function rangeBuilderMap(){
   flushNew() //clears out old cells
 
@@ -182,13 +175,10 @@ function rangeBuilderMap(){
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); //Creates Spreadsheet as spreadhsheet object
   var sheet = spreadsheet.getSheets()[0]; // ?? Not sure what this does
   var arrayRangeBuilder = sheet.getRange(fullRange).getValues();  //Grabs the full range of values here into  arrayRangeBuilder[]
-  //  var outputSheetName = "NewLoad" //holds the name of out the outputSheet to write to
-    
+  //  var outputSheetName = "NewLoad" //holds the name of out the outputSheet to write to  
 
   var outputSheet = spreadsheet.setActiveSheet(spreadsheet.getSheetByName((PropertiesService.getScriptProperties().getProperty('batchOutput'))),true); //Creates output sheet object to write results to by looking for sheet in the outputSheetName
-  var arrayTempDemo = arrayRangeBuilder.map(buildArray);  //Uses map array funciton on the full array function 
-
-    
+  var arrayTempDemo = arrayRangeBuilder.map(buildArray);  //Uses map array funciton on the full array function    
     
   function buildArray(row){ //|| initalises output sheet & then goes and grabs a row, pulls back the blend array for that row then iterates through it building up all the SKU codes for that group then pastes them into the sheet.
    
@@ -222,19 +212,12 @@ function rangeBuilderMap(){
      var outputRange = outputSheet.getRange(lr,1,arraySkuLength,1);
      outputRange.setValues(arraySku);
      return output;
-     
-     
+    
        };  
   PasteNew();
 };
 
 /////////////////
-
-
-
-
-
-
 /*
 || Next steps
 
